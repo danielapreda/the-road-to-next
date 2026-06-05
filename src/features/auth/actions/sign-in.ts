@@ -1,15 +1,15 @@
 "use server";
 
-import { verify } from "@node-rs/argon2";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { setSessionCookie } from "@/auth/cookie";
+import { verifyPasswordHash } from "@/auth/password";
+import { createSession, generateRandomSessionToken } from "@/auth/session";
 import {
     ActionState,
     fromErrorToActionState,
     toActionState,
 } from "@/components/form/utils/to-action-state";
-import { lucia } from "@/lib/lucia";
 import { prisma } from "@/lib/prisma";
 import { ticketsPath } from "@/paths";
 
@@ -36,7 +36,10 @@ export const signIn = async (_actionState: ActionState, formData: FormData) => {
             );
         }
 
-        const validPassword = await verify(user.passwordHash, password);
+        const validPassword = await verifyPasswordHash(
+            user.passwordHash,
+            password,
+        );
 
         if (!validPassword) {
             return toActionState(
@@ -46,14 +49,10 @@ export const signIn = async (_actionState: ActionState, formData: FormData) => {
             );
         }
 
-        const session = await lucia.createSession(user.id, {});
-        const sessionCookie = lucia.createSessionCookie(session.id);
+        const sessionToken = generateRandomSessionToken();
+        const session = await createSession(sessionToken, user.id);
 
-        (await cookies()).set(
-            sessionCookie.name,
-            sessionCookie.value,
-            sessionCookie.attributes,
-        );
+        await setSessionCookie(sessionToken, session.expiresAt);
     } catch (error) {
         return fromErrorToActionState(error, formData);
     }

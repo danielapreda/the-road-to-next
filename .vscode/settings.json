@@ -1,0 +1,7 @@
+{
+    "prisma.pinToPrisma6": true,
+    "editor.codeActionsOnSave": {
+        "source.addMissingImports": "explicit",
+        "source.fixAll.eslint": "explicit"
+    }
+}
