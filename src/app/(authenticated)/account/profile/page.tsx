@@ -1,8 +1,8 @@
 import { CardCompact } from "@/components/card-compact";
 import { Heading } from "@/components/heading";
 import { AccountProfileForm } from "@/features/account/components/account-profile-form";
-import { AccountTabs } from "@/features/account/components/account-tabs";
 import { getAuthOrRedirect } from "@/features/auth/queries/get-auth-or-redirect";
+import { AccountTabs } from "../_navigation/tabs";
 
 const ProfilePage = async () => {
     const { user } = await getAuthOrRedirect();
